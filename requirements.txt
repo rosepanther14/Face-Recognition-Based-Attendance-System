@@ -1,0 +1,12 @@
+opencv-python
+numpy
+face-recognition
+sqlite3
+datetime
+cmake
+dlib
+tkinter
+pandas
+openpyxl
+gspread
+oauth2client
