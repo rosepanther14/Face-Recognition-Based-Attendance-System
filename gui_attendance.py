@@ -11,7 +11,7 @@ import os
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
-# Connect to SQLite Database
+
 conn = sqlite3.connect("attendance.db")
 c = conn.cursor()
 
@@ -20,10 +20,9 @@ scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/au
 creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
 client = gspread.authorize(creds)
 
-# Open the Google Sheet 
+
 sheet = client.open("attendance-list").sheet1
 
-# Custom message box
 def custom_messagebox(title, message):
     msg_box = tk.Toplevel()
     msg_box.title(title)
@@ -47,14 +46,14 @@ class AttendanceApp:
         self.root.title("Face Recognition Attendance")
         self.root.geometry("1920x1080")
 
-        # Set a stylish font
+        
         self.font = ("Montserrat", 16)
 
-        # Create a frame for the content
+       
         self.content_frame = tk.Frame(root)
         self.content_frame.pack(fill=tk.BOTH, expand=True)
 
-        # Define styles for light and dark themes
+        
         self.style = ttk.Style()
         self.light_theme()
 
@@ -72,11 +71,9 @@ class AttendanceApp:
         self.clear_btn = ttk.Button(self.content_frame, text="Clear Attendance", command=self.clear_attendance)
         self.clear_btn.pack(pady=10)
 
-        # Add a button to view attendance in fullscreen mode
         self.view_btn = ttk.Button(self.content_frame, text="View Attendance", command=self.view_attendance)
         self.view_btn.pack(pady=10)
 
-        # Add a button to toggle between light and dark themes
         self.theme_btn = ttk.Button(self.content_frame, text="Switch to Dark Theme", command=self.toggle_theme)
         self.theme_btn.pack(pady=10)
 
@@ -84,7 +81,6 @@ class AttendanceApp:
         self.quit_btn.pack(pady=10)
 
     def light_theme(self):
-        # Configure light theme
         self.style.theme_use('default')
         self.style.configure("TButton", font=self.font, padding=10, background="#f0f0f0", foreground="#000000",
                              activebackground="#d9d9d9", activeforeground="#000000", borderwidth=1, relief="flat")
@@ -94,7 +90,6 @@ class AttendanceApp:
         self.content_frame.configure(bg="#f0f0f0")
 
     def dark_theme(self):
-        # Configure dark theme
         self.style.theme_use('clam')
         self.style.configure("TButton", font=self.font, padding=10, background="#333333", foreground="#ffffff",
                              activebackground="#555555", activeforeground="#ffffff", borderwidth=1, relief="flat")
@@ -104,7 +99,6 @@ class AttendanceApp:
         self.content_frame.configure(bg="#333333")
 
     def toggle_theme(self):
-        # Toggle between light and dark themes
         if self.theme_btn.cget("text") == "Switch to Dark Theme":
             self.dark_theme()
             self.theme_btn.config(text="Switch to Light Theme")
@@ -115,7 +109,6 @@ class AttendanceApp:
     def start_attendance(self):
         custom_messagebox("Info", "Starting Face Recognition")
 
-        # Load known face encodings
         c.execute("SELECT name, encoding FROM users")
         users = c.fetchall()
         known_names = []
@@ -127,7 +120,6 @@ class AttendanceApp:
             known_names.append(name)
             known_encodings.append(encoding)
 
-        # Open webcam
         cam = cv2.VideoCapture(0)
         while True:
             ret, frame = cam.read()
@@ -148,11 +140,10 @@ class AttendanceApp:
                     c.execute("INSERT INTO attendance (name, timestamp) VALUES (?, ?)", (name, timestamp))
                     conn.commit()
 
-                    # Smooth transition for marking attendance
                     self.root.after(500, lambda: custom_messagebox("Attendance", f"Attendance marked for {name}"))
                     cam.release()
                     cv2.destroyAllWindows()
-                    return  # Exit the function to close the application
+                    return 
 
                 else:
                     print("Unknown Face Detected")
@@ -191,22 +182,18 @@ class AttendanceApp:
 
     def clear_attendance(self):
         try:
-            # Clear the SQLite database
             c.execute("DELETE FROM attendance")
             c.execute("DELETE FROM sqlite_sequence WHERE name='attendance'")
             conn.commit()
 
-            # Clear the Google Sheet
             sheet.clear()
 
             self.root.after(500, lambda: custom_messagebox("Clear", "Attendance records cleared"))
         except Exception as e:
             self.root.after(500, lambda: custom_messagebox("Error", f"An error occurred: {e}"))
 
-    # Add a method to view attendance in fullscreen mode
     def view_attendance(self):
         try:
-            # Create a new fullscreen window
             view_window = tk.Toplevel(self.root)
             view_window.attributes('-fullscreen', True)
             view_window.title("Attendance Records")
@@ -218,15 +205,15 @@ class AttendanceApp:
             tree.heading("Timestamp", text="Timestamp")
             tree.pack(expand=True, fill=tk.BOTH)
 
-            # Fetch attendance records from the database
+            
             c.execute("SELECT * FROM attendance")
             records = c.fetchall()
 
-            # Insert records into the Treeview
+           
             for record in records:
                 tree.insert("", tk.END, values=record)
 
-            # Add a button to close the fullscreen window
+          
             close_btn = ttk.Button(view_window, text="Close", command=view_window.destroy)
             close_btn.pack(pady=20)
         except Exception as e:
