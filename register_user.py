@@ -16,11 +16,11 @@ def register_user(name):
         cv2.imshow("Capture Face", frame)
 
         if cv2.waitKey(1) & 0xFF == ord('s'):  # Press 's' to save face
-            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Convert to RGB
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  
             face_encodings = face_recognition.face_encodings(rgb_frame)
 
             if face_encodings:
-                encoded_face = face_encodings[0].tobytes()  # Convert encoding to bytes
+                encoded_face = face_encodings[0].tobytes() 
                 c.execute("INSERT INTO users (name, encoding) VALUES (?, ?)", (name, encoded_face))
                 conn.commit()
                 print("Face Registered Successfully!")
@@ -31,6 +31,5 @@ def register_user(name):
     cam.release()
     cv2.destroyAllWindows()
 
-# Get user input
 name = input("Enter your name: ")
 register_user(name)
